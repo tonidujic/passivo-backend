@@ -15,8 +15,8 @@ let token;
 const sendToken = (user, req, res) => {
   token = signToken(user._id);
   res.cookie("jwt", token, {
-    expires: new Date(process.env.JWT_EXPIRES_IN * 24 * 60 * 60 * 1000),
     httpOnly: true,
+    maxAge: 60 * 60 * 1000,
   });
 
   user.password = undefined;
