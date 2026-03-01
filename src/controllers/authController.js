@@ -101,3 +101,13 @@ exports.logIn = async (req, res) => {
     return sendToken(user, req, res);
   }
 };
+
+exports.logOut = (req, res) => {
+  res.cookie("jwt", "", {
+    maxAge: 1000,
+    httpOnly: true,
+  });
+  res.status(200).json({
+    message: "User logged out",
+  });
+};
