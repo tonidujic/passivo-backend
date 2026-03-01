@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const { getDB } = require("../db/mongo");
+const bcrypt = require("bcrypt");
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -51,14 +52,18 @@ exports.protectedInfo = (req, res) => {
 exports.signUp = async (req, res) => {
   const { username, password } = req.body;
 
+  const hashedPassword = await bcrypt.hash(password, 12);
+
   const db = getDB();
   if (!db) return res.status(500).json({ message: "DB not connected" });
   const users = db.collection("users");
 
-  const user = await users.insertOne({ username, password });
+  const user = await users.insertOne({ username, hashedPassword });
 
-  if (user) sendToken({ _id: user.insertedId, username }, req, res);
-  else {
+  if (user) {
+    sendToken({ _id: user.insertedId, username }, req, res);
+    console.log(hashedPassword);
+  } else {
     return res.status(400).json({
       message: "Error",
     });
@@ -78,10 +83,17 @@ exports.logIn = async (req, res) => {
 
   const user = await users.findOne({
     username,
-    password,
   });
+  let equailty = null;
+  if (user) {
+    equailty = await bcrypt.compare(password, user.hashedPassword);
+  } else {
+    return res.status(400).json({
+      message: "Invalid username or password",
+    });
+  }
 
-  if (!user) {
+  if (!equailty) {
     return res.status(400).json({
       message: "Your username or password are incorrect",
     });
