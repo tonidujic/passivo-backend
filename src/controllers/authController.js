@@ -3,6 +3,9 @@ const { getDB } = require("../db");
 const bcrypt = require("bcrypt");
 const config = require("../config");
 const respository = require("../respository");
+const util = require("util");
+
+const verifyAsync = util.promisify(jwt.verify);
 
 const signToken = (id) => {
   return jwt.sign({ id }, config.JWT_SECRET, {
@@ -30,7 +33,7 @@ const sendToken = (user, req, res) => {
   });
 };
 
-exports.protect = (req, res, next) => {
+exports.protect = async (req, res, next) => {
   token = req.cookies?.jwt;
 
   if (!token) {
@@ -41,7 +44,7 @@ exports.protect = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, config.JWT_SECRET);
+    const decoded = await verifyAsync(token, config.JWT_SECRET);
 
     res.locals.userId = decoded;
     return next();
