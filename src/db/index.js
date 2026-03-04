@@ -1,6 +1,7 @@
 const { MongoClient } = require("mongodb");
+const config = require("./config");
 
-const client = new MongoClient(process.env.MONGO_URI);
+const client = new MongoClient(config.MONGO_URI);
 let db;
 exports.connectDB = async () => {
   try {

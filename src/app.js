@@ -1,16 +1,17 @@
 const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, "../.env") });
+const config = require("./config");
 
 const express = require("express");
 const cookieParser = require("cookie-parser");
 
 const infoRouter = require("./routes/infoRouter.js");
 const authRouter = require("./routes/authRouter.js");
-const { connectDB } = require("./db/mongo.js");
+const { connectDB } = require("./db/index.js");
 
 const app = express();
 
-const PORT = process.env.PORT;
+const PORT = config.PORT;
 
 app.use(express.json());
 app.use(cookieParser());

@@ -1,10 +1,10 @@
 const jwt = require("jsonwebtoken");
-const { getDB } = require("../db/mongo");
+const { getDB } = require("../db");
 const bcrypt = require("bcrypt");
-
+const config = require("./config");
 const signToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
+  return jwt.sign({ id }, config.JWT_SECRET, {
+    expiresIn: config.JWT_EXPIRES_IN,
   });
 };
 
@@ -36,7 +36,7 @@ exports.protect = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, config.JWT_SECRET);
 
     req.user = decoded;
     return next();
