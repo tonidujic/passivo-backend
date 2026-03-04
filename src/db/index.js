@@ -1,17 +1,19 @@
 const { MongoClient } = require("mongodb");
-const config = require("./config");
+const config = require("../config");
 
-const client = new MongoClient(config.MONGO_URI);
-let db;
+let _db;
+let _client;
 exports.connectDB = async () => {
+  if (_db) return;
+  _client = new MongoClient(config.MONGO_URI);
   try {
-    await client.connect();
-    db = client.db("passivo_db");
+    await _client.connect();
+    _db = _client.db("passivo_db");
   } catch (err) {
     console.log(err.message);
   }
 };
 
 exports.getDB = () => {
-  return db;
+  return _db;
 };

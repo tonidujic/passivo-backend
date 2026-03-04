@@ -16,8 +16,8 @@ const PORT = config.PORT;
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/", infoRouter);
-app.use("/auth", authRouter);
+app.use("/api/", infoRouter);
+app.use("/api/auth", authRouter);
 
 async function startServer() {
   await connectDB();
