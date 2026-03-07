@@ -7,6 +7,7 @@ const cookieParser = require("cookie-parser");
 
 const infoRouter = require("./routes/infoRouter.js");
 const authRouter = require("./routes/authRouter.js");
+const passwordRouter = require("./routes/passwordRouter");
 const { connectDB } = require("./db/index.js");
 
 const app = express();
@@ -18,6 +19,7 @@ app.use(cookieParser());
 
 app.use("/api/", infoRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/password", passwordRouter);
 
 async function startServer() {
   await connectDB();

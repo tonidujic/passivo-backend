@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const { getDB } = require("../db");
 const bcrypt = require("bcrypt");
 const config = require("../config");
-const respository = require("../respository");
+const respository = require("../repository/userRepo");
 const util = require("util");
 
 const verifyAsync = util.promisify(jwt.verify);
@@ -45,8 +45,7 @@ exports.protect = async (req, res, next) => {
 
   try {
     const decoded = await verifyAsync(token, config.JWT_SECRET);
-
-    res.locals.userId = decoded;
+    res.locals.userId = decoded.id;
     return next();
   } catch (err) {
     return res.status(401).json({
