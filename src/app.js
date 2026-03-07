@@ -21,6 +21,13 @@ app.use("/api/", infoRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/password", passwordRouter);
 
+app.use((err, req, res, next) => {
+  res.status(500).json({
+    status: "fail",
+    message: err.message,
+  });
+});
+
 async function startServer() {
   await connectDB();
 

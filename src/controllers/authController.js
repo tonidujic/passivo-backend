@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const config = require("../config");
 const respository = require("../repository/userRepo");
 const util = require("util");
+const catchAsync = require("../utils/catchAsync");
 
 const verifyAsync = util.promisify(jwt.verify);
 
@@ -33,7 +34,7 @@ const sendToken = (user, req, res) => {
   });
 };
 
-exports.protect = async (req, res, next) => {
+exports.protect = catchAsync(async (req, res, next) => {
   token = req.cookies?.jwt;
 
   if (!token) {
@@ -43,17 +44,10 @@ exports.protect = async (req, res, next) => {
     });
   }
 
-  try {
-    const decoded = await verifyAsync(token, config.JWT_SECRET);
-    res.locals.userId = decoded.id;
-    return next();
-  } catch (err) {
-    return res.status(401).json({
-      status: "fail",
-      message: "Invalid or expired token",
-    });
-  }
-};
+  const decoded = await verifyAsync(token, config.JWT_SECRET);
+  res.locals.userId = decoded.id;
+  return next();
+});
 
 exports.protectedInfo = (req, res) => {
   res.status(200).json({ message: "Info" });
@@ -84,7 +78,7 @@ exports.signUp = async (req, res) => {
   }
 };
 
-exports.logIn = async (req, res) => {
+exports.logIn = catchAsync(async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
@@ -105,7 +99,7 @@ exports.logIn = async (req, res) => {
     });
   }
   return sendToken(user, req, res);
-};
+});
 
 exports.logOut = (req, res) => {
   res.cookie("jwt", "", {

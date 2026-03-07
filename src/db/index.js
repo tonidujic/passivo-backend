@@ -1,16 +1,13 @@
 const { MongoClient } = require("mongodb");
 const config = require("../config");
+const catchAsync = require("../utils/catchAsync");
 
 let _db;
 let _client;
-exports.connectDB = async () => {
+exports.connectDB = catchAsync(async () => {
   _client = new MongoClient(config.MONGO_URI);
-  try {
-    _db = _client.db("passivo_db");
-  } catch (err) {
-    console.log(err.message);
-  }
-};
+  _db = _client.db("passivo_db");
+});
 
 exports.getDB = () => {
   return _db;
