@@ -1,41 +1,10 @@
-const jwt = require("jsonwebtoken");
-const { getDB } = require("../db");
-const bcrypt = require("bcrypt");
 const config = require("../config");
 const respository = require("../repository/userRepo");
-const util = require("util");
 const catchAsync = require("../utils/catchAsync");
-
-const verifyAsync = util.promisify(jwt.verify);
-
-const signToken = (id) => {
-  return jwt.sign({ id }, config.JWT_SECRET, {
-    expiresIn: config.JWT_EXPIRES_IN,
-  });
-};
-
-let token;
-
-const sendToken = (user, req, res) => {
-  token = signToken(user._id);
-  res.cookie("jwt", token, {
-    httpOnly: true,
-    maxAge: 60 * 60 * 1000,
-  });
-
-  user.password = undefined;
-
-  res.status(200).json({
-    status: "success",
-    data: {
-      user,
-      token,
-    },
-  });
-};
+const authUtil = require("../utils/authUtils");
 
 exports.protect = catchAsync(async (req, res, next) => {
-  token = req.cookies?.jwt;
+  const token = req.cookies?.jwt;
 
   if (!token) {
     return res.status(401).json({
@@ -43,8 +12,7 @@ exports.protect = catchAsync(async (req, res, next) => {
       message: "You are not logged in",
     });
   }
-
-  const decoded = await verifyAsync(token, config.JWT_SECRET);
+  const decoded = await authUtil.verifyToken(token, config.JWT_SECRET);
   res.locals.userId = decoded.id;
   return next();
 });
@@ -56,26 +24,18 @@ exports.protectedInfo = (req, res) => {
 exports.signUp = async (req, res) => {
   let { username, password } = req.body;
 
-  password = await bcrypt.hash(password, 12);
+  password = authUtil.passwordHashing(password, 12);
 
-  const db = getDB();
-  if (!db)
-    return res.status(500).json({
-      status: "fail",
-      message: "DB not connected",
-    });
-  const users = db.collection("users");
-
-  const user = await respository.createUser(users, username, password);
+  const user = await respository.createUser(username, password);
 
   if (user) {
-    sendToken({ _id: user.insertedId, username }, req, res);
-  } else {
-    return res.status(400).json({
-      status: "fail",
-      message: "Error",
-    });
+    authUtil.sendToken({ _id: user.insertedId, username }, res);
   }
+
+  return res.status(400).json({
+    status: "fail",
+    message: "Error",
+  });
 };
 
 exports.logIn = catchAsync(async (req, res) => {
@@ -87,18 +47,16 @@ exports.logIn = catchAsync(async (req, res) => {
       message: "Missing username and password",
     });
   }
-  const db = getDB();
-  const users = db.collection("users");
 
-  const user = await respository.findUserByUsername(users, username);
+  const user = await respository.findUserByUsername(username);
 
-  if (!user || !(await bcrypt.compare(password, user.password))) {
+  if (!user || !authUtil.passwordComparing(password, user.password)) {
     return res.status(400).json({
       status: "fail",
       message: "Invalid username or password",
     });
   }
-  return sendToken(user, req, res);
+  return authUtil.sendToken(user, res);
 });
 
 exports.logOut = (req, res) => {
