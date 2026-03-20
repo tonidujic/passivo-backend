@@ -1,28 +1,23 @@
-const { ObjectId } = require("mongodb");
-const repository = require("../repository/passwordRepo");
+const { v4: uuidv4 } = require("uuid");
+const passwordRepository = require("../repository/passwordRepo");
 const catchAsync = require("../utils/catchAsync");
 
 exports.createPassword = catchAsync(async (req, res) => {
   const userId = res.locals.userId;
 
   const { title, username, password, website } = req.body;
-  const loginPassword = { title, username, password, website };
-
-  const pass = await repository.createPassword(
-    userId,
-    title,
-    username,
-    website
-  );
+  const user = { id: uuidv4(), userId, title, username, password, website };
+  const pass = await passwordRepository.createPassword(user);
   if (!pass) {
     return res.status(400).json({ status: "fail", message: "Invalid inputs" });
   }
+  const loginPassword = { title, username, password, website };
 
   res.status(201).json({
     status: "success",
     data: {
-      pass,
-      loginPassword,
+      id: user.id,
+      ...loginPassword,
       userId,
     },
   });
@@ -30,9 +25,9 @@ exports.createPassword = catchAsync(async (req, res) => {
 
 exports.getAll = catchAsync(async (req, res) => {
   const userId = res.locals.userId;
-  const result = await repository.getAllPasswords(userId);
+  const result = await passwordRepository.getAllPasswords(userId);
 
-  res.status(200).json({
+  return res.status(200).json({
     status: "success",
     data: {
       result,
@@ -42,10 +37,9 @@ exports.getAll = catchAsync(async (req, res) => {
 
 exports.getOne = catchAsync(async (req, res) => {
   const id = req.params.id;
-  const objectId = new ObjectId(id);
   const userId = res.locals.userId;
 
-  const result = await repository.findPasswordById(objectId, userId);
+  const result = await passwordRepository.findPasswordById(id, userId);
   if (result === null) {
     return res.status(404).json({
       status: "fail",
@@ -60,15 +54,16 @@ exports.getOne = catchAsync(async (req, res) => {
   });
 });
 
-exports.edit = catchAsync(async (req, res) => {
+exports.update = catchAsync(async (req, res) => {
   const updatedInfo = req.body;
   const id = req.params.id;
-  const objectId = new ObjectId(id);
   const userId = res.locals.userId;
-  const result = await repository.updatePassword(
+  const result = await passwordRepository.updatePassword(
     userId,
-    { updatedInfo },
-    objectId
+    {
+      updatedInfo,
+    },
+    id
   );
   if (result.matchedCount === 0) {
     return res.status(404).json({
@@ -80,6 +75,8 @@ exports.edit = catchAsync(async (req, res) => {
   res.status(200).json({
     status: "success",
     data: {
+      id,
+      userId,
       updatedInfo,
     },
   });
@@ -87,9 +84,8 @@ exports.edit = catchAsync(async (req, res) => {
 
 exports.deleteOne = catchAsync(async (req, res) => {
   const id = req.params.id;
-  const objectId = new ObjectId(id);
   const userId = res.locals.userId;
-  const result = await repository.deleteOnePassword(objectId, userId);
+  const result = await passwordRepository.deleteOnePassword(id, userId);
   if (result.deletedCount === 0) {
     return res.status(404).json({
       status: "fail",
@@ -106,7 +102,7 @@ exports.deleteOne = catchAsync(async (req, res) => {
 exports.deleteAll = catchAsync(async (req, res) => {
   const userId = res.locals.userId;
 
-  const result = await repository.deleteAllPasswords(userId);
+  const result = await passwordRepository.deleteAllPasswords(userId);
   if (result.deletedCount === 0) {
     return res.status(404).json({
       status: "fail",

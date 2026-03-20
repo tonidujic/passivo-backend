@@ -1,7 +1,8 @@
+const { v4: uuidv4 } = require("uuid");
 const config = require("../config");
-const respository = require("../repository/userRepo");
+const userRepository = require("../repository/userRepo");
 const catchAsync = require("../utils/catchAsync");
-const authUtil = require("../utils/authUtils");
+const authUtil = require("../utils/authUtil");
 
 exports.protect = catchAsync(async (req, res, next) => {
   const token = req.cookies?.jwt;
@@ -26,10 +27,15 @@ exports.signUp = async (req, res) => {
 
   password = authUtil.passwordHashing(password, 12);
 
-  const user = await respository.createUser(username, password);
+  const user = {
+    id: uuidv4(),
+    username,
+    password,
+  };
+  await userRepository.createUser(user);
 
   if (user) {
-    authUtil.sendToken({ _id: user.insertedId, username }, res);
+    return authUtil.sendToken(user, res);
   }
 
   return res.status(400).json({
@@ -48,7 +54,7 @@ exports.logIn = catchAsync(async (req, res) => {
     });
   }
 
-  const user = await respository.findUserByUsername(username);
+  const user = await userRepository.findUserByUsername(username);
 
   if (!user || !authUtil.passwordComparing(password, user.password)) {
     return res.status(400).json({
