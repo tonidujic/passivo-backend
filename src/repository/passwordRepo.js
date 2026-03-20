@@ -1,29 +1,27 @@
-const dbController = require("../db");
+const db = require("../db");
 const general = require("../utils/general");
 
-exports.createPassword = async (userId, title, username, website) => {
-  const passwords = dbController.getCollection("passwords");
+exports.createPassword = async (data) => {
+  const passwords = db.getCollection("passwords");
 
-  return await passwords.insertOne({
-    userId,
-    title,
-    username,
-    website,
-  });
+  return await passwords.insertOne(data);
 };
 
 exports.findPasswordById = async (id, userId) => {
-  const passwords = dbController.getCollection("passwords");
+  const passwords = db.getCollection("passwords");
 
-  const result = await passwords.findOne({ _id: id, userId });
-  return general.parseFromDB(result);
+  const result = await passwords.findOne({ id, userId });
+  if (!result) return null;
+
+  const { _id, ...rest } = result;
+  return rest;
 };
 
 exports.getAllPasswords = async (userId) => {
-  const passwords = dbController.getCollection("passwords");
-
+  const passwords = db.getCollection("passwords");
   const result = await passwords.find({ userId }).toArray();
-  return result.map((doc) => general.parseFromDB(doc));
+
+  return result.map(({ _id, ...rest }) => rest);
 };
 
 exports.updatePassword = async (
@@ -31,13 +29,10 @@ exports.updatePassword = async (
   { password, title, username, website },
   id
 ) => {
-  const passwords = dbController.getCollection("passwords");
+  const passwords = db.getCollection("passwords");
 
   return await passwords.updateOne(
-    {
-      _id: id,
-      userId,
-    },
+    { id, userId },
     {
       $set: { password, title, username, website },
     }
@@ -45,16 +40,16 @@ exports.updatePassword = async (
 };
 
 exports.deleteOnePassword = async (id, userId) => {
-  const passwords = dbController.getCollection("passwords");
+  const passwords = db.getCollection("passwords");
 
   return await passwords.deleteOne({
-    _id: id,
+    id,
     userId,
   });
 };
 
 exports.deleteAllPasswords = async (userId) => {
-  const passwords = dbController.getCollection("passwords");
+  const passwords = db.getCollection("passwords");
 
   return await passwords.deleteMany({ userId });
 };

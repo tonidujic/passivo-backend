@@ -1,13 +1,12 @@
-const dbController = require("../db");
+const db = require("../db");
 
-exports.createUser = async (username, password) => {
-  const users = dbController.getCollection("users");
-
-  return await users.insertOne({ username, password });
+exports.createUser = async (user) => {
+  const users = db.getCollection("users");
+  return await users.insertOne(user);
 };
 
 exports.findUserByUsername = async (username) => {
-  const users = dbController.getCollection("users");
+  const users = db.getCollection("users");
 
   return await users.findOne({ username });
 };
