@@ -7,6 +7,8 @@ const cookieParser = require("cookie-parser");
 
 const authRouter = require("./routes/authRouter.js");
 const passwordRouter = require("./routes/passwordRouter");
+const driveRouter = require("./routes/driveRouter");
+
 const { connectDB } = require("./db/index.js");
 
 const app = express();
@@ -18,6 +20,7 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRouter);
 app.use("/api/password", passwordRouter);
+app.use("/api/drive", driveRouter);
 
 app.use((err, req, res, next) => {
   res.status(500).json({

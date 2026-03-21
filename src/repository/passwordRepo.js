@@ -1,5 +1,4 @@
 const db = require("../db");
-const general = require("../utils/general");
 
 exports.createPassword = async (data) => {
   const passwords = db.getCollection("passwords");

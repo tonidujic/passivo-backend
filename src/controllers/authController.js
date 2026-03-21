@@ -25,7 +25,7 @@ exports.protectedInfo = (req, res) => {
 exports.signUp = async (req, res) => {
   let { username, password } = req.body;
 
-  password = authUtil.passwordHashing(password, 12);
+  password = await authUtil.passwordHashing(password, 12);
 
   const user = {
     id: uuidv4(),
@@ -56,7 +56,7 @@ exports.logIn = catchAsync(async (req, res) => {
 
   const user = await userRepository.findUserByUsername(username);
 
-  if (!user || !authUtil.passwordComparing(password, user.password)) {
+  if (!user || (await !authUtil.passwordComparing(password, user.password))) {
     return res.status(400).json({
       status: "fail",
       message: "Invalid username or password",
