@@ -6,6 +6,13 @@ exports.uploadFile = catchAsync(async (req, res) => {
   const userId = res.locals.userId;
   const file = req.file;
 
+  if (!file) {
+    return res.status(404).send({
+      status: "fail",
+      message: "File not uploaded",
+    });
+  }
+
   const { _id, ...rest } = await driveRepository.uploadFile(userId, file);
 
   return res.status(200).json({

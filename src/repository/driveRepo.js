@@ -10,10 +10,6 @@ const { v4: uuidv4 } = require("uuid");
 const config = require("../config");
 
 exports.uploadFile = async (userId, file) => {
-  if (!file) {
-    throw new Error("No file uploaded");
-  }
-
   const fileKey = uuidv4();
   await driveUtil.r2.send(
     new PutObjectCommand({
@@ -68,7 +64,6 @@ exports.renameFile = async (fileKey, renamed) => {
   );
 
   selectedFile.fileName = renamed;
-  console.log(files);
 
   const result = await files.findOne({ key: fileKey });
 
