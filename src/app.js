@@ -5,9 +5,10 @@ const config = require("./config");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 
-const infoRouter = require("./routes/infoRouter.js");
 const authRouter = require("./routes/authRouter.js");
 const passwordRouter = require("./routes/passwordRouter");
+const driveRouter = require("./routes/driveRouter");
+
 const { connectDB } = require("./db/index.js");
 
 const app = express();
@@ -17,9 +18,9 @@ const PORT = config.PORT;
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/api/", infoRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/password", passwordRouter);
+app.use("/api/drive", driveRouter);
 
 app.use((err, req, res, next) => {
   res.status(500).json({
@@ -28,8 +29,8 @@ app.use((err, req, res, next) => {
   });
 });
 
-async function startServer() {
-  await connectDB();
+function startServer() {
+  connectDB();
 
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
