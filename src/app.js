@@ -6,9 +6,10 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 
 const authRouter = require("./routes/authRouter.js");
-const passwordRouter = require("./routes/passwordRouter");
+const passwordRouter = require("./routes/credentialsRouter.js");
 const driveRouter = require("./routes/driveRouter");
-
+const AppError = require("./utils/appError");
+const globalErrorHandler = require("./controllers/errorController.js");
 const { connectDB } = require("./db/index.js");
 
 const app = express();
@@ -22,17 +23,21 @@ app.use("/api/auth", authRouter);
 app.use("/api/password", passwordRouter);
 app.use("/api/drive", driveRouter);
 
-app.use((err, req, res, next) => {
-  res.status(500).json({
-    status: "fail",
-    message: err.message,
-  });
+app.all(/.*/, (req, res, next) => {
+  next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
 });
 
-function startServer() {
-  connectDB();
+app.use(globalErrorHandler);
 
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+async function startServer() {
+  try {
+    await connectDB();
+
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 }
 
 startServer();

@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const config = require("../config");
 const util = require("util");
+const { z } = require("zod");
 
 exports.verifyToken = util.promisify(jwt.verify);
 
@@ -19,14 +20,7 @@ exports.sendToken = (user, res) => {
   });
 
   const { _id, password, ...rest } = user;
-
-  res.status(200).json({
-    status: "success",
-    data: {
-      user: rest,
-      token,
-    },
-  });
+  return rest;
 };
 
 exports.passwordHashing = async (password, saltNum) => {
@@ -36,3 +30,11 @@ exports.passwordHashing = async (password, saltNum) => {
 exports.passwordComparing = async (password, hashedPassword) => {
   return await bcrypt.compare(password, hashedPassword);
 };
+
+exports.passwordSchema = z
+  .string()
+  .min(8)
+  .regex(/[1-9]/)
+  .regex(/[A-Z]/)
+  .regex(/[a-z]/)
+  .regex(/[^A-Za-z0-9]/);
