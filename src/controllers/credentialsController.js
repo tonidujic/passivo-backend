@@ -1,5 +1,7 @@
 const credentialsService = require("../service/credentialsService");
 const credentialsRepository = require("../repository/credentialsRepo");
+const { parseFromDB } = require("../utils/general");
+const { parseManyFromDB } = require("../utils/general");
 
 const {
   createCredentialsSchema,
@@ -21,18 +23,20 @@ exports.createCredential = catchAsync(async (req, res) => {
     userId
   );
 
+  const result = parseFromDB(loginCredential);
+
   return res.status(201).json({
     status: "success",
     data: {
-      ...loginCredential,
-      userId,
+      result,
     },
   });
 });
 
 exports.getAll = catchAsync(async (req, res) => {
   const userId = res.locals.userId;
-  const result = await credentialsRepository.getAllCredentials(userId);
+  let result = await credentialsRepository.getAllCredentials(userId);
+  result = parseManyFromDB(result);
 
   return res.status(200).json({
     status: "success",
@@ -43,14 +47,17 @@ exports.getAll = catchAsync(async (req, res) => {
 });
 
 exports.getOne = catchAsync(async (req, res) => {
+  console.log(req.params);
   const id = req.params.id;
   const userId = res.locals.userId;
 
-  const result = await credentialsService.getOne(id, userId);
+  let result = await credentialsService.getOne(id, userId);
+  result = parseFromDB(result);
+
   return res.status(200).json({
     status: "success",
     data: {
-      result,
+      ...result,
     },
   });
 });
@@ -60,19 +67,13 @@ exports.update = catchAsync(async (req, res) => {
   const updatedInfo = parsed;
   const id = req.params.id;
   const userId = res.locals.userId;
-  await credentialsService.update(
-    userId,
-    {
-      updatedInfo,
-    },
-    id
-  );
+  let result = await credentialsService.update(userId, updatedInfo, id);
+  result = parseFromDB(result);
+
   return res.status(200).json({
     status: "success",
     data: {
-      id,
-      userId,
-      updatedInfo,
+      result,
     },
   });
 });
@@ -94,6 +95,6 @@ exports.deleteAll = catchAsync(async (req, res) => {
 
   return res.status(200).json({
     status: "success",
-    message: "All credentias deleted successfully",
+    message: "All credentials deleted successfully",
   });
 });

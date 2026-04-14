@@ -10,7 +10,7 @@ exports.createCredential = async (
   userId
 ) => {
   const credential = {
-    id: uuidv4(),
+    _id: uuidv4(),
     userId,
     title,
     username,
@@ -30,16 +30,16 @@ exports.getOne = async (id, userId) => {
   return result;
 };
 
-exports.update = async (userId, updatedInfo, id) => {
+exports.update = async (userId, updatedInfo, _id) => {
   const result = await credentialsRepository.updateCredential(
     userId,
     updatedInfo,
-    id
+    _id
   );
   if (result.matchedCount === 0) {
     throw new AppError("Document not found", 404);
   }
-  return result;
+  return { _id, userId, updatedInfo };
 };
 
 exports.deleteOne = async (id, userId) => {

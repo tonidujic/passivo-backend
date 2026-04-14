@@ -6,20 +6,20 @@ const { z } = require("zod");
 
 exports.verifyToken = util.promisify(jwt.verify);
 
-const signToken = (id) => {
-  return jwt.sign({ id }, config.JWT_SECRET, {
+const signToken = (_id) => {
+  return jwt.sign({ _id }, config.JWT_SECRET, {
     expiresIn: config.JWT_EXPIRES_IN,
   });
 };
 
 exports.sendToken = (user, res) => {
-  const token = signToken(user.id);
+  const token = signToken(user._id);
   res.cookie("jwt", token, {
     httpOnly: true,
     maxAge: 60 * 60 * 1000,
   });
 
-  const { _id, password, ...rest } = user;
+  const { password, ...rest } = user;
   return rest;
 };
 

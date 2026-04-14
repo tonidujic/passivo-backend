@@ -3,12 +3,12 @@ const authUtil = require("../utils/authUtil");
 const authService = require("../service/authService");
 const { signUpSchema } = require("../validators/authValidator");
 const { logInSchema } = require("../validators/authValidator");
+const { parseFromDB } = require("../utils/general");
 
 exports.protect = catchAsync(async (req, res, next) => {
   const token = req.cookies?.jwt;
   const decoded = await authService.protect(token);
-
-  res.locals.userId = decoded.id;
+  res.locals.userId = decoded._id;
   return next();
 });
 
@@ -24,10 +24,11 @@ exports.signUp = catchAsync(async (req, res) => {
   const user = await authService.signUp(username, password);
 
   const rest = authUtil.sendToken(user, res);
+  const result = parseFromDB(rest);
   return res.status(200).json({
     status: "success",
     data: {
-      user: rest,
+      user: result,
     },
   });
 });
@@ -39,10 +40,12 @@ exports.logIn = catchAsync(async (req, res) => {
 
   const user = await authService.logIn(username, password);
   const rest = authUtil.sendToken(user, res);
+  const result = parseFromDB(rest);
+
   return res.status(200).json({
     status: "success",
     data: {
-      user: rest,
+      user: result,
     },
   });
 });

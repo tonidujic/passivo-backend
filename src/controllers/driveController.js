@@ -1,5 +1,8 @@
 const catchAsync = require("../utils/catchAsync");
 const driveService = require("../service/driveService");
+const { parseFromDB } = require("../utils/general");
+const { parseManyFromDB } = require("../utils/general");
+
 const {
   uploadFileValidator,
   renameFileSchema,
@@ -9,8 +12,8 @@ exports.uploadFile = catchAsync(async (req, res) => {
   const userId = res.locals.userId;
   const file = uploadFileValidator.parse(req.file);
 
-  const result = await driveService.uploadFile(userId, file);
-
+  let result = await driveService.uploadFile(userId, file);
+  result = parseFromDB(result);
   return res.status(200).json({
     status: "success",
     data: result,
@@ -20,6 +23,8 @@ exports.uploadFile = catchAsync(async (req, res) => {
 exports.getAll = catchAsync(async (req, res) => {
   const userId = res.locals.userId;
   let result = await driveService.getAll(userId);
+  result = parseManyFromDB(result);
+
   return res.status(200).json({
     status: "success",
     data: result,
@@ -38,7 +43,7 @@ exports.renameFile = catchAsync(async (req, res) => {
 
   const fileKey = req.params.key;
 
-  const result = await driveService.renameFile(fileKey, fileName, userId);
+  let result = await driveService.renameFile(fileKey, fileName, userId);
 
   return res.status(200).send({
     status: "success",

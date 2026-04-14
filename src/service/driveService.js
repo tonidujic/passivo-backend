@@ -2,6 +2,7 @@ const driveRepository = require("../repository/driveRepo");
 const AppError = require("../utils/appError");
 
 const driveStorageService = require("../service/driveStorageService");
+const { v4: uuidv4 } = require("uuid");
 
 exports.uploadFile = async (userId, file) => {
   if (!file) {
@@ -11,7 +12,7 @@ exports.uploadFile = async (userId, file) => {
   const fileKey = await driveStorageService.uploadFile(file);
 
   const savedFile = {
-    ///dodati ID ovdje jer svaki dokument u bazi mora imati id
+    _id: uuidv4(),
     key: fileKey,
     userId,
     fileName: file.originalname,
@@ -38,7 +39,7 @@ exports.getOne = async (fileKey) => {
   return selectedFile;
 };
 
-exports.renameFile = async (fileKey, renamed, userId) => {
+exports.renameFile = async (fileKey, renamed, userId, _id) => {
   if (!renamed) {
     throw new AppError("Renamed name is required", 400);
   }
@@ -47,7 +48,7 @@ exports.renameFile = async (fileKey, renamed, userId) => {
   if (result.matchedCount === 0) {
     throw new AppError("File not found", 404);
   }
-  return result;
+  return renamed;
 };
 
 exports.deleteOne = async (userId, fileKey) => {

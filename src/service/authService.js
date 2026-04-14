@@ -1,4 +1,4 @@
-const userRepository = require("../repository/userRepo");
+const userRepository = require("../repository/authRepo");
 const AppError = require("../utils/appError");
 const authUtil = require("../utils/authUtil");
 const config = require("../config");
@@ -20,7 +20,7 @@ exports.signUp = async (username, password) => {
   password = await authUtil.passwordHashing(password, 12);
 
   const user = {
-    id: uuidv4(),
+    _id: uuidv4(),
     username,
     password,
   };
