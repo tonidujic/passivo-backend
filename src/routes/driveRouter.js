@@ -8,11 +8,11 @@ router.post(
   "/",
   authController.protect,
   driveUtil.upload.single("file"),
-  driveController.uploadFile
+  driveController.createFile
 );
 router.get("/", authController.protect, driveController.getAll);
 router.get("/:key", authController.protect, driveController.getOne);
-router.patch("/:key", authController.protect, driveController.renameFile);
+router.patch("/:key", authController.protect, driveController.update);
 router.delete("/:key", authController.protect, driveController.deleteOne);
 router.delete("/", authController.protect, driveController.deleteAll);
 

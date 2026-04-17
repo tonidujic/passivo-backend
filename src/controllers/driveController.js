@@ -1,63 +1,45 @@
 const catchAsync = require("../utils/catchAsync");
-const driveRepository = require("../repository/driveRepo");
-const driveUtil = require("../utils/driveUtil");
+const driveService = require("../service/driveService");
 
-exports.uploadFile = catchAsync(async (req, res) => {
+const {
+  uploadFileValidator,
+  renameFileValidator,
+} = require("../validators/driveValidator");
+
+exports.createFile = catchAsync(async (req, res) => {
   const userId = res.locals.userId;
-  const file = req.file;
+  const file = uploadFileValidator.parse(req.file);
 
-  if (!file) {
-    return res.status(404).send({
-      status: "fail",
-      message: "File not uploaded",
-    });
-  }
-
-  const { _id, ...rest } = await driveRepository.uploadFile(userId, file);
-
+  let result = await driveService.createFile(userId, file);
   return res.status(200).json({
     status: "success",
-    data: rest,
+    data: result,
   });
 });
 
 exports.getAll = catchAsync(async (req, res) => {
-  let result = await driveRepository.getAll();
-  if (!result) {
-    return res.status(404).send({
-      status: "fail",
-      message: "File not found",
-    });
-  }
+  const userId = res.locals.userId;
+  let result = await driveService.getAll(userId);
+
   return res.status(200).json({
     status: "success",
-    data: result.Contents,
+    data: result,
   });
 });
 exports.getOne = catchAsync(async (req, res) => {
   const fileKey = req.params.key;
-  const result = await driveRepository.getOne(fileKey);
-  if (!result) {
-    return res.status(404).send({
-      status: "fail",
-      message: "File not found",
-    });
-  }
+  const result = await driveService.getOne(fileKey);
   res.set("Content-Type", result.ContentType || "application/octet-stream");
   result.Body.pipe(res);
 });
 
-exports.renameFile = catchAsync(async (req, res) => {
-  const fileKey = req.params.key;
-  const renamed = req.body;
+exports.update = catchAsync(async (req, res) => {
+  const userId = res.locals.userId;
+  const { fileName } = renameFileValidator.parse(req.body);
 
-  const result = await driveRepository.renameFile(fileKey, renamed);
-  if (!result) {
-    return res.status(404).send({
-      status: "fail",
-      message: "File not found",
-    });
-  }
+  const fileKey = req.params.key;
+
+  let result = await driveService.update(fileKey, fileName, userId);
 
   return res.status(200).send({
     status: "success",
@@ -67,13 +49,7 @@ exports.renameFile = catchAsync(async (req, res) => {
 exports.deleteOne = catchAsync(async (req, res) => {
   const userId = res.locals.userId;
   const fileKey = req.params.key;
-  const result = await driveRepository.deleteOne(userId, fileKey);
-  if (!result) {
-    return res.status(404).send({
-      status: "fail",
-      message: "File not found",
-    });
-  }
+  await driveService.deleteOne(userId, fileKey);
 
   return res.status(200).send({
     status: "success",
@@ -83,14 +59,8 @@ exports.deleteOne = catchAsync(async (req, res) => {
 
 exports.deleteAll = catchAsync(async (req, res) => {
   const userId = res.locals.userId;
+  await driveService.deleteAll(userId);
 
-  const result = await driveRepository.deleteAll(userId);
-  if (result.length === 0) {
-    return res.status(404).send({
-      status: "fail",
-      message: "Files not found",
-    });
-  }
   return res.status(200).send({
     status: "success",
     message: "All files successfully deleted",
