@@ -1,14 +1,12 @@
 const catchAsync = require("../utils/catchAsync");
-const authUtil = require("../utils/authUtil");
 const authService = require("../service/authService");
-const { signUpSchema } = require("../validators/authValidator");
-const { logInSchema } = require("../validators/authValidator");
-const { parseFromDB } = require("../utils/general");
+const { signUpValidator } = require("../validators/authValidator");
+const { logInValidator } = require("../validators/authValidator");
 
 exports.protect = catchAsync(async (req, res, next) => {
   const token = req.cookies?.jwt;
   const decoded = await authService.protect(token);
-  res.locals.userId = decoded._id;
+  res.locals.userId = decoded.id;
   return next();
 });
 
@@ -17,35 +15,37 @@ exports.protectedInfo = (req, res) => {
 };
 
 exports.signUp = catchAsync(async (req, res) => {
-  const parsed = signUpSchema.parse(req.body);
+  const userId = res.locals.userId;
+  let { username, password } = signUpValidator.parse(req.body);
 
-  let { username, password } = parsed;
+  const result = await authService.signUp(username, password, userId);
 
-  const user = await authService.signUp(username, password);
-
-  const rest = authUtil.sendToken(user, res);
-  const result = parseFromDB(rest);
-  return res.status(200).json({
+  res.cookie("jwt", result.token, {
+    httpOnly: true,
+    maxAge: 60 * 60 * 1000,
+  });
+  return res.status(201).json({
     status: "success",
     data: {
-      user: result,
+      ...result.user,
     },
   });
 });
 
 exports.logIn = catchAsync(async (req, res) => {
-  const parsed = logInSchema.parse(req.body);
+  const { username, password } = logInValidator.parse(req.body);
 
-  const { username, password } = parsed;
+  const result = await authService.logIn(username, password);
 
-  const user = await authService.logIn(username, password);
-  const rest = authUtil.sendToken(user, res);
-  const result = parseFromDB(rest);
+  res.cookie("jwt", result.token, {
+    httpOnly: true,
+    maxAge: 60 * 60 * 1000,
+  });
 
   return res.status(200).json({
     status: "success",
     data: {
-      user: result,
+      user: result.user,
     },
   });
 });

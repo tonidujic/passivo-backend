@@ -1,19 +1,16 @@
 const catchAsync = require("../utils/catchAsync");
 const driveService = require("../service/driveService");
-const { parseFromDB } = require("../utils/general");
-const { parseManyFromDB } = require("../utils/general");
 
 const {
   uploadFileValidator,
-  renameFileSchema,
+  renameFileValidator,
 } = require("../validators/driveValidator");
 
-exports.uploadFile = catchAsync(async (req, res) => {
+exports.createFile = catchAsync(async (req, res) => {
   const userId = res.locals.userId;
   const file = uploadFileValidator.parse(req.file);
 
-  let result = await driveService.uploadFile(userId, file);
-  result = parseFromDB(result);
+  let result = await driveService.createFile(userId, file);
   return res.status(200).json({
     status: "success",
     data: result,
@@ -23,7 +20,6 @@ exports.uploadFile = catchAsync(async (req, res) => {
 exports.getAll = catchAsync(async (req, res) => {
   const userId = res.locals.userId;
   let result = await driveService.getAll(userId);
-  result = parseManyFromDB(result);
 
   return res.status(200).json({
     status: "success",
@@ -37,13 +33,13 @@ exports.getOne = catchAsync(async (req, res) => {
   result.Body.pipe(res);
 });
 
-exports.renameFile = catchAsync(async (req, res) => {
+exports.update = catchAsync(async (req, res) => {
   const userId = res.locals.userId;
-  const { fileName } = renameFileSchema.parse(req.body);
+  const { fileName } = renameFileValidator.parse(req.body);
 
   const fileKey = req.params.key;
 
-  let result = await driveService.renameFile(fileKey, fileName, userId);
+  let result = await driveService.update(fileKey, fileName, userId);
 
   return res.status(200).send({
     status: "success",

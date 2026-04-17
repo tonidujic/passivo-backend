@@ -9,7 +9,7 @@ const { v4: uuidv4 } = require("uuid");
 const driveUtil = require("../utils/driveUtil");
 const config = require("../config");
 
-exports.uploadFile = async (file) => {
+exports.createFile = async (file) => {
   const fileKey = uuidv4();
   await driveUtil.r2.send(
     new PutObjectCommand({

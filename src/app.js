@@ -6,7 +6,7 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 
 const authRouter = require("./routes/authRouter.js");
-const passwordRouter = require("./routes/credentialsRouter.js");
+const credentialsRouter = require("./routes/credentialsRouter.js");
 const driveRouter = require("./routes/driveRouter");
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController.js");
@@ -20,7 +20,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/api/auth", authRouter);
-app.use("/api/password", passwordRouter);
+app.use("/api/password", credentialsRouter);
 app.use("/api/drive", driveRouter);
 
 app.all(/.*/, (req, res, next) => {

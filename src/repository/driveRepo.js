@@ -1,8 +1,9 @@
 const db = require("../db");
+const { parseToDB } = require("../utils/general");
 
-exports.uploadFile = async (savedFile) => {
+exports.createFile = async (savedFile) => {
   const files = db.getCollection("drive");
-  return await files.insertOne(savedFile);
+  return await files.insertOne(parseToDB(savedFile));
 };
 
 exports.getAll = async (userId) => {
@@ -12,7 +13,7 @@ exports.getAll = async (userId) => {
   return selectedFiles;
 };
 
-exports.renameFile = async (fileKey, renamed, userId) => {
+exports.update = async (fileKey, renamed, userId) => {
   const files = db.getCollection("drive");
 
   const result = await files.updateOne(

@@ -7,6 +7,6 @@ exports.uploadFileValidator = z.object({
   buffer: z.instanceof(Buffer),
 });
 
-exports.renameFileSchema = z.object({
+exports.renameFileValidator = z.object({
   fileName: z.string().min(1),
 });

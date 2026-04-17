@@ -1,16 +1,13 @@
 const { z } = require("zod");
-const { passwordSchema } = require("../utils/authUtil");
+const { passwordValidator } = require("./authValidator");
 
-exports.createCredentialsSchema = z.object({
+const credentialsValidator = z.object({
   title: z.string().min(1),
   username: z.string().min(3),
-  password: passwordSchema,
+  password: passwordValidator,
   website: z.url(),
 });
 
-exports.updateCredentialsSchema = z.object({
-  title: z.string().min(1).optional(),
-  username: z.string().min(3).optional(),
-  password: passwordSchema.optional(),
-  website: z.url().optional(),
-});
+exports.createCredentialsValidator = credentialsValidator;
+
+exports.updateCredentialsValidator = credentialsValidator.partial();

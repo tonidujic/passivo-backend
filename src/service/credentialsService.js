@@ -1,6 +1,7 @@
 const credentialsRepository = require("../repository/credentialsRepo");
 const AppError = require("../utils/appError");
 const { v4: uuidv4 } = require("uuid");
+const { parseFromDB } = require("../utils/general");
 
 exports.createCredential = async (
   title,
@@ -10,7 +11,7 @@ exports.createCredential = async (
   userId
 ) => {
   const credential = {
-    _id: uuidv4(),
+    id: uuidv4(),
     userId,
     title,
     username,
@@ -23,23 +24,24 @@ exports.createCredential = async (
 };
 
 exports.getOne = async (id, userId) => {
-  const result = await credentialsRepository.findCredentialById(id, userId);
+  let result = await credentialsRepository.findCredentialById(id, userId);
   if (result === null) {
     throw new AppError("Credential not found", 404);
   }
-  return result;
+
+  return parseFromDB(result);
 };
 
-exports.update = async (userId, updatedInfo, _id) => {
-  const result = await credentialsRepository.updateCredential(
+exports.update = async (userId, updatedInfo, id) => {
+  let result = await credentialsRepository.updateCredential(
     userId,
     updatedInfo,
-    _id
+    id
   );
   if (result.matchedCount === 0) {
     throw new AppError("Document not found", 404);
   }
-  return { _id, userId, updatedInfo };
+  return { id, userId, updatedInfo };
 };
 
 exports.deleteOne = async (id, userId) => {
