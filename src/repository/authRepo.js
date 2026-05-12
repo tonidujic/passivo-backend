@@ -6,8 +6,8 @@ exports.createUser = async (user) => {
   return await users.insertOne(parseToDB(user));
 };
 
-exports.findUserByUsername = async (username) => {
+exports.findUserByEmail = async (email) => {
   const users = db.getCollection("users");
 
-  return await users.findOne({ username });
+  return await users.findOne({ email });
 };

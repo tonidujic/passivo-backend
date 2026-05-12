@@ -2,6 +2,7 @@ const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, "../.env") });
 const config = require("./config");
 
+const cors = require("cors");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 
@@ -15,7 +16,13 @@ const { connectDB } = require("./db/index.js");
 const app = express();
 
 const PORT = config.PORT;
+app.use(
+  cors({
+    origin: "http://localhost:9001",
 
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 

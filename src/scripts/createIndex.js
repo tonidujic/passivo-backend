@@ -6,5 +6,5 @@ const { connectDB, getDB } = require("../db");
   await connectDB();
   const db = getDB();
   const users = db.collection("users");
-  await users.createIndex({ username: 1 }, { unique: true });
+  await users.createIndex({ email: 1 }, { unique: true });
 })();

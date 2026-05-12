@@ -5,18 +5,18 @@ const { parseFromDB } = require("../utils/general");
 
 exports.createCredential = async (
   title,
-  username,
-  password,
   website,
+  username,
+  encryptedCredential,
   userId
 ) => {
   const credential = {
     id: uuidv4(),
     userId,
     title,
-    username,
-    password,
     website,
+    username,
+    encryptedCredential,
   };
   await credentialsRepository.createCredentials(credential);
 

@@ -7,15 +7,23 @@ const {
 } = require("../validators/credentialsValidator");
 
 const catchAsync = require("../utils/catchAsync");
+
 exports.createCredential = catchAsync(async (req, res) => {
+  const parsed = createCredentialsValidator.safeParse(req.body);
+
+  if (!parsed.success) {
+    return res.status(400).json(parsed.error);
+  }
+
   const userId = res.locals.userId;
-  const { title, username, password, website } =
-    createCredentialsValidator.parse(req.body);
+
+  const { title, website, username, encryptedCredential } = parsed.data;
+
   const result = await credentialsService.createCredential(
     title,
-    username,
-    password,
     website,
+    username,
+    encryptedCredential,
     userId
   );
 
@@ -26,13 +34,14 @@ exports.createCredential = catchAsync(async (req, res) => {
     },
   });
 });
-
 exports.getAll = catchAsync(async (req, res) => {
   const userId = res.locals.userId;
+
   let result = await credentialsRepository.getAllCredentials(userId);
 
   return res.status(200).json({
     status: "success",
+
     data: {
       result,
     },

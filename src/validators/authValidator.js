@@ -10,11 +10,19 @@ const passwordValidator = z
 
 exports.passwordValidator = passwordValidator;
 exports.signUpValidator = z.object({
-  username: z.string().min(3),
-  password: passwordValidator,
+  fullName: z.string().min(1),
+  email: z.email(),
+  salt: z.string().min(1),
+  authKey: z.string().min(1),
+  publicKey: z.string().min(1),
+  encryptedPrivateKey: z.string().min(1),
+  iv: z.string().min(1),
+});
+exports.logInInitValidator = z.object({
+  email: z.email(),
 });
 
 exports.logInValidator = z.object({
-  username: z.string().min(1),
-  password: z.string().min(1),
+  email: z.email(),
+  authKey: z.string().min(1),
 });

@@ -2,6 +2,7 @@ const authRepository = require("../repository/authRepo");
 const AppError = require("../utils/appError");
 const authUtil = require("../utils/authUtil");
 const config = require("../config");
+const bcrypt = require("bcryptjs");
 const { parseFromDB } = require("../utils/general");
 
 const { v4: uuidv4 } = require("uuid");
@@ -14,41 +15,66 @@ exports.protect = async (token) => {
   return decoded;
 };
 
-exports.signUp = async (username, password, userId) => {
-  if (!username || !password) {
-    throw new AppError("Invalid username or password", 400);
+exports.signUp = async (userData) => {
+  if (!userData.email) {
+    throw new AppError("Invalid email or password", 400);
   }
 
-  password = await authUtil.passwordHashing(password, 12);
-
-  const token = authUtil.signToken(userId);
+  const authKeyHash = await bcrypt.hash(userData.authKey, 12);
   const user = {
     id: uuidv4(),
-    username,
-    password,
+    fullName: userData.fullName,
+    email: userData.email,
+    salt: userData.salt,
+    authKeyHash,
+    publicKey: userData.publicKey,
+    encryptedPrivateKey: userData.encryptedPrivateKey,
+    iv: userData.iv,
   };
-
-  const { password: pass, ...userWithoutPassword } = user;
+  const token = authUtil.signToken(user.id);
 
   await authRepository.createUser(user);
   return {
-    user: userWithoutPassword,
+    user,
     token,
+    publicKey: user.publicKey,
   };
 };
 
-exports.logIn = async (username, password) => {
-  if (!username || !password) {
-    throw new AppError("Invalid username or password", 400);
+exports.logInInit = async (email) => {
+  if (!email) {
+    throw new AppError("Invalid email or password", 400);
   }
 
-  let user = parseFromDB(await authRepository.findUserByUsername(username));
+  let user = parseFromDB(await authRepository.findUserByEmail(email));
+
+  if (!user) {
+    throw new AppError("Invalid email or password", 400);
+  }
+
+  return {
+    salt: user.salt,
+  };
+};
+
+exports.logIn = async (email, authKey) => {
+  if (!email) {
+    throw new AppError("Invalid email or password", 400);
+  }
+  let user = parseFromDB(await authRepository.findUserByEmail(email));
+
+  if (!user) {
+    throw new AppError("Invalid email or password", 400);
+  }
+
+  const isValid = await bcrypt.compare(authKey, user.authKeyHash);
+
+  if (!isValid) {
+    throw new AppError("Invalid email or password", 400);
+  }
 
   const token = authUtil.signToken(user.id);
 
-  if (!user || !(await authUtil.passwordComparing(password, user.password))) {
-    throw new AppError("Invalid username or password", 400);
-  }
   return {
     user,
     token,
