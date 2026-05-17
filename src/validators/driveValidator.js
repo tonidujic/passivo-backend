@@ -1,10 +1,12 @@
 const { z } = require("zod");
 
 exports.uploadFileValidator = z.object({
-  originalname: z.string().min(1),
-  mimetype: z.string().min(1),
-  size: z.number().positive(),
-  buffer: z.instanceof(Buffer),
+  fileName: z.string().min(1),
+  file: z.string().min(1),
+  fileType: z.string().min(1),
+  title: z.string().min(1),
+  iv: z.string().min(1),
+  key: z.string().min(1),
 });
 
 exports.renameFileValidator = z.object({

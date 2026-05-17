@@ -11,3 +11,8 @@ exports.findUserByEmail = async (email) => {
 
   return await users.findOne({ email });
 };
+
+exports.findUserById = async (userId) => {
+  const users = db.getCollection("users");
+  return await users.findOne({ _id: userId });
+};

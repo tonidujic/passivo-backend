@@ -13,9 +13,9 @@ exports.signUpValidator = z.object({
   fullName: z.string().min(1),
   email: z.email(),
   salt: z.string().min(1),
-  authKey: z.string().min(1),
+  payloadAuthKey: z.string().min(1),
   publicKey: z.string().min(1),
-  encryptedPrivateKey: z.string().min(1),
+  privateKey: z.string().min(1),
   iv: z.string().min(1),
 });
 exports.logInInitValidator = z.object({

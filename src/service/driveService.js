@@ -4,20 +4,30 @@ const { parseManyFromDB } = require("../utils/general");
 const driveStorageService = require("../service/driveStorageService");
 const { v4: uuidv4 } = require("uuid");
 
-exports.createFile = async (userId, file) => {
+exports.createFile = async ({
+  userId,
+  fileName,
+  fileType,
+  file,
+  title,
+  iv,
+  key,
+}) => {
   if (!file) {
     throw new AppError("File not uploaded", 400);
   }
 
-  const fileKey = await driveStorageService.createFile(file);
+  await driveStorageService.createFile(file);
 
   const savedFile = {
     id: uuidv4(),
-    key: fileKey,
+    key,
     userId,
-    fileName: file.originalname,
-    mimetype: file.mimetype,
-    size: file.size,
+    fileName,
+    fileType: fileType,
+    file,
+    title,
+    iv,
   };
 
   await driveRepository.createFile(savedFile);

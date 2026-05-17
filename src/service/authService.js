@@ -16,19 +16,15 @@ exports.protect = async (token) => {
 };
 
 exports.signUp = async (userData) => {
-  if (!userData.email) {
-    throw new AppError("Invalid email or password", 400);
-  }
-
-  const authKeyHash = await bcrypt.hash(userData.authKey, 12);
+  const authKey = await bcrypt.hash(userData.payloadAuthKey, 12);
   const user = {
     id: uuidv4(),
     fullName: userData.fullName,
     email: userData.email,
     salt: userData.salt,
-    authKeyHash,
+    authKey,
     publicKey: userData.publicKey,
-    encryptedPrivateKey: userData.encryptedPrivateKey,
+    privateKey: userData.privateKey,
     iv: userData.iv,
   };
   const token = authUtil.signToken(user.id);
@@ -67,7 +63,7 @@ exports.logIn = async (email, authKey) => {
     throw new AppError("Invalid email or password", 400);
   }
 
-  const isValid = await bcrypt.compare(authKey, user.authKeyHash);
+  const isValid = await bcrypt.compare(authKey, user.authKey);
 
   if (!isValid) {
     throw new AppError("Invalid email or password", 400);
@@ -79,4 +75,13 @@ exports.logIn = async (email, authKey) => {
     user,
     token,
   };
+};
+
+exports.getMe = async (userId) => {
+  const user = await authRepository.findUserById(userId);
+
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+  return user;
 };

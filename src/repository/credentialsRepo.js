@@ -3,7 +3,9 @@ const { parseManyFromDB, parseToDB } = require("../utils/general");
 
 exports.createCredentials = async (data) => {
   const credentials = db.getCollection("credentials");
-  return await credentials.insertOne(parseToDB(data));
+  const parsed = parseToDB(data);
+  const result = await credentials.insertOne(parsed);
+  return result;
 };
 
 exports.findCredentialById = async (id, userId) => {
@@ -24,7 +26,7 @@ exports.getAllCredentials = async (userId) => {
 
 exports.updateCredential = async (
   userId,
-  { password, title, username, website },
+  { credential, title, username, website },
   id
 ) => {
   const credentials = db.getCollection("credentials");
@@ -32,7 +34,7 @@ exports.updateCredential = async (
   await credentials.updateOne(
     { _id: id, userId },
     {
-      $set: { password, title, username, website },
+      $set: { credential, title, username, website },
     }
   );
 

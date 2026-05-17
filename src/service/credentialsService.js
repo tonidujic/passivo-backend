@@ -7,20 +7,20 @@ exports.createCredential = async (
   title,
   website,
   username,
-  encryptedCredential,
+  credential,
   userId
 ) => {
-  const credential = {
+  const credentialObj = {
     id: uuidv4(),
     userId,
     title,
     website,
     username,
-    encryptedCredential,
+    credential,
   };
-  await credentialsRepository.createCredentials(credential);
+  await credentialsRepository.createCredentials(credentialObj);
 
-  return credential;
+  return credentialObj;
 };
 
 exports.getOne = async (id, userId) => {

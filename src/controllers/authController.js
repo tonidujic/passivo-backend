@@ -18,18 +18,20 @@ exports.protectedInfo = (req, res) => {
 };
 
 exports.signUp = catchAsync(async (req, res) => {
-  let { fullName, email, salt, authKey, publicKey, encryptedPrivateKey, iv } =
+  let { fullName, email, salt, payloadAuthKey, publicKey, privateKey, iv } =
     signUpValidator.parse(req.body);
 
   const result = await authService.signUp({
     fullName,
     email,
     salt,
-    authKey,
+    payloadAuthKey,
     publicKey,
-    encryptedPrivateKey,
+    privateKey,
     iv,
   });
+
+  let { authKey, ...userWithoutAuthKey } = result.user;
 
   res.cookie("jwt", result.token, {
     httpOnly: true,
@@ -38,14 +40,14 @@ exports.signUp = catchAsync(async (req, res) => {
   return res.status(201).json({
     status: "success",
     data: {
-      ...result.user,
+      user: userWithoutAuthKey,
       publicKey,
     },
   });
 });
 
 exports.logInInit = catchAsync(async (req, res) => {
-  const { email } = logInInitValidator.parse(req.body);
+  const { email } = req.body;
 
   const result = await authService.logInInit(email);
 
@@ -58,7 +60,7 @@ exports.logInInit = catchAsync(async (req, res) => {
 });
 
 exports.logIn = catchAsync(async (req, res) => {
-  const { email, authKey } = logInValidator.parse(req.body);
+  const { email, authKey } = req.body;
 
   const result = await authService.logIn(email, authKey);
 
@@ -71,6 +73,19 @@ exports.logIn = catchAsync(async (req, res) => {
     status: "success",
     data: {
       user: result.user,
+    },
+  });
+});
+
+exports.getMe = catchAsync(async (req, res) => {
+  const userId = res.locals.userId;
+
+  const user = await authService.getMe(userId);
+
+  return res.status(200).json({
+    status: "success",
+    data: {
+      user,
     },
   });
 });

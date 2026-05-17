@@ -1,3 +1,5 @@
+const catchAsync = require("./catchAsync");
+
 exports.parseFromDB = (obj) => {
   const { _id, ...objWithoutId } = obj;
   return {
@@ -20,5 +22,23 @@ exports.parseToDB = (obj) => {
   return {
     _id: id,
     ...objWithoutId,
+  };
+};
+
+exports.validate = (validator) => {
+  return (req, res, next) => {
+    const parsed = validator.safeParse(req.body);
+
+    if (!parsed.success) {
+      return res.status(400).json({
+        status: "fail",
+
+        message: "Validation failed",
+
+        errors: parsed.error.flatten().fieldErrors,
+      });
+    }
+    req.body = parsed.data;
+    next();
   };
 };

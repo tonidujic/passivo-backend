@@ -7,26 +7,20 @@ const {
 } = require("../validators/credentialsValidator");
 
 const catchAsync = require("../utils/catchAsync");
+const AppError = require("../utils/appError");
 
 exports.createCredential = catchAsync(async (req, res) => {
-  const parsed = createCredentialsValidator.safeParse(req.body);
-
-  if (!parsed.success) {
-    return res.status(400).json(parsed.error);
-  }
+  const { title, website, username, credential } = req.body;
 
   const userId = res.locals.userId;
-
-  const { title, website, username, encryptedCredential } = parsed.data;
 
   const result = await credentialsService.createCredential(
     title,
     website,
     username,
-    encryptedCredential,
+    credential,
     userId
   );
-
   return res.status(201).json({
     status: "success",
     data: {
@@ -63,7 +57,7 @@ exports.getOne = catchAsync(async (req, res) => {
 });
 
 exports.update = catchAsync(async (req, res) => {
-  const updatedInfo = updateCredentialsValidator.parse(req.body);
+  const updatedInfo = req.body;
   const id = req.params.id;
   const userId = res.locals.userId;
   let result = await credentialsService.update(userId, updatedInfo, id);

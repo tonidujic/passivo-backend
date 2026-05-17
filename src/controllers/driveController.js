@@ -1,16 +1,18 @@
 const catchAsync = require("../utils/catchAsync");
 const driveService = require("../service/driveService");
 
-const {
-  uploadFileValidator,
-  renameFileValidator,
-} = require("../validators/driveValidator");
-
 exports.createFile = catchAsync(async (req, res) => {
   const userId = res.locals.userId;
-  const file = uploadFileValidator.parse(req.file);
-
-  let result = await driveService.createFile(userId, file);
+  const { file, fileName, fileType, iv, key, title } = req.body;
+  const result = await driveService.createFile({
+    userId,
+    fileName,
+    fileType,
+    file,
+    title,
+    iv,
+    key,
+  });
   return res.status(200).json({
     status: "success",
     data: result,
@@ -35,7 +37,7 @@ exports.getOne = catchAsync(async (req, res) => {
 
 exports.update = catchAsync(async (req, res) => {
   const userId = res.locals.userId;
-  const { fileName } = renameFileValidator.parse(req.body);
+  const { fileName } = req.body;
 
   const fileKey = req.params.key;
 
