@@ -9,6 +9,8 @@ const cookieParser = require("cookie-parser");
 const authRouter = require("./routes/authRouter.js");
 const credentialsRouter = require("./routes/credentialsRouter.js");
 const driveRouter = require("./routes/driveRouter");
+const notesRouter = require("./routes/notesRouter.js");
+
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController.js");
 const { connectDB } = require("./db/index.js");
@@ -31,6 +33,7 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use("/api/auth", authRouter);
 app.use("/api/password", credentialsRouter);
 app.use("/api/drive", driveRouter);
+app.use("/api/notes", notesRouter);
 
 app.all(/.*/, (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));

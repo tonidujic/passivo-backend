@@ -1,0 +1,11 @@
+const z = require("zod");
+
+exports.createNotesValidator = z.object({
+  title: z.string().min(1),
+  content: z.string().min(1),
+});
+
+exports.updateNotesValidator = z.object({
+  title: z.string().min(1).optional(),
+  content: z.string().min(1).optional(),
+});

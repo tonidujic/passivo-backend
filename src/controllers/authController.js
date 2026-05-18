@@ -1,8 +1,5 @@
 const catchAsync = require("../utils/catchAsync");
 const authService = require("../service/authService");
-const { signUpValidator } = require("../validators/authValidator");
-const { logInValidator } = require("../validators/authValidator");
-const { logInInitValidator } = require("../validators/authValidator");
 
 exports.protect = catchAsync(async (req, res, next) => {
   const token = req.cookies?.jwt;
@@ -19,7 +16,7 @@ exports.protectedInfo = (req, res) => {
 
 exports.signUp = catchAsync(async (req, res) => {
   let { fullName, email, salt, payloadAuthKey, publicKey, privateKey, iv } =
-    signUpValidator.parse(req.body);
+    req.body;
 
   const result = await authService.signUp({
     fullName,
