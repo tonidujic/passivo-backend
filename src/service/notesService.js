@@ -2,12 +2,13 @@ const notesRepository = require("../repository/notesRepo");
 const AppError = require("../utils/appError");
 const { v4: uuidv4 } = require("uuid");
 
-exports.createNotes = async (title, content, userId) => {
+exports.createNotes = async (title, content, favorite, userId) => {
   const notesObj = {
     id: uuidv4(),
     userId,
     title,
     content,
+    favorite,
   };
 
   await notesRepository.createNotes(notesObj);

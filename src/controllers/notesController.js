@@ -4,9 +4,14 @@ const notesService = require("../service/notesService");
 exports.createNotes = catchAsync(async (req, res) => {
   const userId = res.locals.userId;
 
-  const { title, content } = req.body;
+  const { title, content, favorite } = req.body;
 
-  const result = await notesService.createNotes(title, content, userId);
+  const result = await notesService.createNotes(
+    title,
+    content,
+    favorite,
+    userId
+  );
 
   return res.status(201).json({
     status: "success",

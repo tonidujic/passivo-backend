@@ -24,18 +24,13 @@ exports.getAllCredentials = async (userId) => {
   return parseManyFromDB(result);
 };
 
-exports.updateCredential = async (
-  userId,
-  { credential, title, username, website },
-  id
-) => {
+exports.updateCredential = async (userId, updatedInfo, id) => {
   const credentials = db.getCollection("credentials");
 
   await credentials.updateOne(
     { _id: id, userId },
-    {
-      $set: { credential, title, username, website },
-    }
+
+    { $set: updatedInfo }
   );
 
   return await credentials.findOne({ _id: id, userId });

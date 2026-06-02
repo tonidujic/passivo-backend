@@ -7,39 +7,39 @@ exports.createNotes = async (savedNote) => {
   return await notes.insertOne(parseToDB(savedNote));
 };
 
-exports.findNotesById = async (id, userId) => {
-  const notes = db.getCollection("notes");
-
-  return await notes.findOne({
-    id,
-    userId,
-  });
-};
-
 exports.getAll = async (userId) => {
   const notes = db.getCollection("notes");
 
   return await notes.find({ userId }).toArray();
 };
 
+exports.findNotesById = async (id, userId) => {
+  const notes = db.getCollection("notes");
+
+  return await notes.findOne({
+    _id: id,
+    userId,
+  });
+};
+
 exports.update = async (userId, updatedInfo, id) => {
   const notes = db.getCollection("notes");
 
   await notes.updateOne(
-    { id, userId },
+    { _id: id, userId },
     {
       $set: updatedInfo,
     }
   );
 
-  return await notes.findOne({ id, userId });
+  return await notes.findOne({ _id: id, userId });
 };
 
 exports.deleteOne = async (id, userId) => {
   const notes = db.getCollection("notes");
 
   return await notes.deleteOne({
-    id,
+    _id: id,
     userId,
   });
 };

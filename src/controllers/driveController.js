@@ -3,13 +3,14 @@ const driveService = require("../service/driveService");
 
 exports.createFile = catchAsync(async (req, res) => {
   const userId = res.locals.userId;
-  const { file, fileName, fileType, iv, key, title } = req.body;
+  const { file, fileName, fileType, favorite, iv, key, title } = req.body;
   const result = await driveService.createFile({
     userId,
     fileName,
     fileType,
     file,
     title,
+    favorite,
     iv,
     key,
   });
@@ -37,11 +38,11 @@ exports.getOne = catchAsync(async (req, res) => {
 
 exports.update = catchAsync(async (req, res) => {
   const userId = res.locals.userId;
-  const { fileName } = req.body;
+  const updatedInfo = req.body;
 
   const fileKey = req.params.key;
 
-  let result = await driveService.update(fileKey, fileName, userId);
+  let result = await driveService.update(fileKey, updatedInfo, userId);
 
   return res.status(200).send({
     status: "success",

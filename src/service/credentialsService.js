@@ -8,6 +8,7 @@ exports.createCredential = async (
   website,
   username,
   credential,
+  favorite,
   userId
 ) => {
   const credentialObj = {
@@ -17,6 +18,7 @@ exports.createCredential = async (
     website,
     username,
     credential,
+    favorite,
   };
   await credentialsRepository.createCredentials(credentialObj);
 
@@ -38,7 +40,7 @@ exports.update = async (userId, updatedInfo, id) => {
     updatedInfo,
     id
   );
-  if (result.matchedCount === 0) {
+  if (!result) {
     throw new AppError("Document not found", 404);
   }
   return { id, userId, updatedInfo };

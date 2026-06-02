@@ -5,7 +5,7 @@ const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/appError");
 
 exports.createCredential = catchAsync(async (req, res) => {
-  const { title, website, username, credential } = req.body;
+  const { title, website, username, favorite, credential } = req.body;
 
   const userId = res.locals.userId;
 
@@ -14,6 +14,7 @@ exports.createCredential = catchAsync(async (req, res) => {
     website,
     username,
     credential,
+    favorite,
     userId
   );
   return res.status(201).json({

@@ -10,6 +10,7 @@ exports.createFile = async ({
   fileType,
   file,
   title,
+  favorite,
   iv,
   key,
 }) => {
@@ -27,6 +28,7 @@ exports.createFile = async ({
     fileType: fileType,
     file,
     title,
+    favorite,
     iv,
   };
 
@@ -36,9 +38,6 @@ exports.createFile = async ({
 
 exports.getAll = async (userId) => {
   let result = await driveRepository.getAll(userId);
-  if (result.length === 0) {
-    throw new AppError("Files not found", 404);
-  }
 
   return parseManyFromDB(result);
 };
@@ -51,16 +50,13 @@ exports.getOne = async (fileKey) => {
   return selectedFile;
 };
 
-exports.update = async (fileKey, renamed, userId) => {
-  if (!renamed) {
-    throw new AppError("Renamed name is required", 400);
-  }
-  const result = await driveRepository.update(fileKey, renamed, userId);
+exports.update = async (fileKey, updatedInfo, userId) => {
+  const result = await driveRepository.update(fileKey, updatedInfo, userId);
 
   if (result.matchedCount === 0) {
     throw new AppError("File not found", 404);
   }
-  return renamed;
+  return result;
 };
 
 exports.deleteOne = async (userId, fileKey) => {
