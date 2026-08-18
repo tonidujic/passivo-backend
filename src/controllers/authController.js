@@ -42,12 +42,20 @@ exports.signUp = catchAsync(async (req, res) => {
 
   const { authKey, ...userWithoutAuthKey } = result.user;
 
-  res.cookie("jwt", result.token, {
+  const isProduction = process.env.NODE_ENV === "production";
+
+  const cookieOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 60 * 60 * 1000,
-  });
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    path: "/",
+  };
+
+  if (remember) {
+    cookieOptions.maxAge = 30 * 24 * 60 * 60 * 1000;
+  }
+
+  res.cookie("jwt", result.token, cookieOptions);
 
   return res.status(201).json({
     status: "success",
