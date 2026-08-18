@@ -1,6 +1,23 @@
 const catchAsync = require("../utils/catchAsync");
 const authService = require("../service/authService");
 
+function getCookieOptions(remember = false) {
+  const isProduction = process.env.NODE_ENV === "production";
+
+  const cookieOptions = {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    path: "/",
+  };
+
+  if (remember) {
+    cookieOptions.maxAge = 30 * 24 * 60 * 60 * 1000;
+  }
+
+  return cookieOptions;
+}
+
 exports.protect = catchAsync(async (req, res, next) => {
   let token;
 
@@ -42,20 +59,7 @@ exports.signUp = catchAsync(async (req, res) => {
 
   const { authKey, ...userWithoutAuthKey } = result.user;
 
-  const isProduction = process.env.NODE_ENV === "production";
-
-  const cookieOptions = {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-    path: "/",
-  };
-
-  if (remember) {
-    cookieOptions.maxAge = 30 * 24 * 60 * 60 * 1000;
-  }
-
-  res.cookie("jwt", result.token, cookieOptions);
+  res.cookie("jwt", result.token, getCookieOptions(false));
 
   return res.status(201).json({
     status: "success",
@@ -82,19 +86,9 @@ exports.logInInit = catchAsync(async (req, res) => {
 exports.logIn = catchAsync(async (req, res) => {
   const { email, authKey, remember = false } = req.body;
 
-  const result = await authService.logIn(email, authKey);
+  const result = await authService.logIn(email, authKey, remember);
 
-  const cookieOptions = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-  };
-
-  if (remember) {
-    cookieOptions.maxAge = 30 * 24 * 60 * 60 * 1000;
-  }
-
-  res.cookie("jwt", result.token, cookieOptions);
+  res.cookie("jwt", result.token, getCookieOptions(remember));
 
   return res.status(200).json({
     status: "success",
@@ -119,10 +113,13 @@ exports.getMe = catchAsync(async (req, res) => {
 });
 
 exports.logOut = (req, res) => {
+  const isProduction = process.env.NODE_ENV === "production";
+
   res.cookie("jwt", "", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    path: "/",
     expires: new Date(0),
   });
 
