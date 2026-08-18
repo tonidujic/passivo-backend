@@ -17,10 +17,10 @@ const { connectDB } = require("./db/index.js");
 
 const app = express();
 
-const PORT = config.PORT;
+const PORT = process.env.PORT || config.PORT || 3000;
 app.use(
   cors({
-    origin: true,
+    origin: process.env.FRONTEND_URL || "http://localhost:9001",
     credentials: true,
   })
 );
@@ -43,7 +43,9 @@ app.use(globalErrorHandler);
 async function startServer() {
   try {
     await connectDB();
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    app.listen(PORT, "0.0.0.0", () =>
+      console.log(`Server running on port ${PORT}`)
+    );
   } catch (error) {
     console.log(error);
     throw error;
