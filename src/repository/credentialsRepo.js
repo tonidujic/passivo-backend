@@ -3,7 +3,9 @@ const { parseManyFromDB, parseToDB } = require("../utils/general");
 
 exports.createCredentials = async (data) => {
   const credentials = db.getCollection("credentials");
-  return await credentials.insertOne(parseToDB(data));
+  const parsed = parseToDB(data);
+  const result = await credentials.insertOne(parsed);
+  return result;
 };
 
 exports.findCredentialById = async (id, userId) => {
@@ -15,6 +17,17 @@ exports.findCredentialById = async (id, userId) => {
   return result;
 };
 
+exports.findCredentialByWebsite = async (website, userId) => {
+  const credentials = db.getCollection("credentials");
+
+  const result = await credentials.findOne({
+    website,
+    userId,
+  });
+
+  return result;
+};
+
 exports.getAllCredentials = async (userId) => {
   const credentials = db.getCollection("credentials");
   let result = await credentials.find({ userId }).toArray();
@@ -22,19 +35,10 @@ exports.getAllCredentials = async (userId) => {
   return parseManyFromDB(result);
 };
 
-exports.updateCredential = async (
-  userId,
-  { password, title, username, website },
-  id
-) => {
+exports.updateCredential = async (userId, updatedInfo, id) => {
   const credentials = db.getCollection("credentials");
 
-  await credentials.updateOne(
-    { _id: id, userId },
-    {
-      $set: { password, title, username, website },
-    }
-  );
+  await credentials.updateOne({ _id: id, userId }, { $set: updatedInfo });
 
   return await credentials.findOne({ _id: id, userId });
 };

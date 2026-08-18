@@ -4,20 +4,32 @@ const { parseManyFromDB } = require("../utils/general");
 const driveStorageService = require("../service/driveStorageService");
 const { v4: uuidv4 } = require("uuid");
 
-exports.createFile = async (userId, file) => {
+exports.createFile = async ({
+  userId,
+  fileName,
+  fileType,
+  file,
+  title,
+  favorite,
+  iv,
+  key,
+}) => {
   if (!file) {
     throw new AppError("File not uploaded", 400);
   }
 
-  const fileKey = await driveStorageService.createFile(file);
+  await driveStorageService.createFile(file);
 
   const savedFile = {
     id: uuidv4(),
-    key: fileKey,
+    key,
     userId,
-    fileName: file.originalname,
-    mimetype: file.mimetype,
-    size: file.size,
+    fileName,
+    fileType: fileType,
+    file,
+    title,
+    favorite,
+    iv,
   };
 
   await driveRepository.createFile(savedFile);
@@ -26,9 +38,6 @@ exports.createFile = async (userId, file) => {
 
 exports.getAll = async (userId) => {
   let result = await driveRepository.getAll(userId);
-  if (result.length === 0) {
-    throw new AppError("Files not found", 404);
-  }
 
   return parseManyFromDB(result);
 };
@@ -41,16 +50,13 @@ exports.getOne = async (fileKey) => {
   return selectedFile;
 };
 
-exports.update = async (fileKey, renamed, userId) => {
-  if (!renamed) {
-    throw new AppError("Renamed name is required", 400);
-  }
-  const result = await driveRepository.update(fileKey, renamed, userId);
+exports.update = async (fileKey, updatedInfo, userId) => {
+  const result = await driveRepository.update(fileKey, updatedInfo, userId);
 
   if (result.matchedCount === 0) {
     throw new AppError("File not found", 404);
   }
-  return renamed;
+  return result;
 };
 
 exports.deleteOne = async (userId, fileKey) => {

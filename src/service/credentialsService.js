@@ -5,22 +5,24 @@ const { parseFromDB } = require("../utils/general");
 
 exports.createCredential = async (
   title,
-  username,
-  password,
   website,
+  username,
+  credential,
+  favorite,
   userId
 ) => {
-  const credential = {
+  const credentialObj = {
     id: uuidv4(),
     userId,
     title,
-    username,
-    password,
     website,
+    username,
+    credential,
+    favorite,
   };
-  await credentialsRepository.createCredentials(credential);
+  await credentialsRepository.createCredentials(credentialObj);
 
-  return credential;
+  return credentialObj;
 };
 
 exports.getOne = async (id, userId) => {
@@ -32,13 +34,24 @@ exports.getOne = async (id, userId) => {
   return parseFromDB(result);
 };
 
+exports.getByWebsite = async (website, userId) => {
+  const result = await credentialsRepository.findCredentialByWebsite(
+    website,
+    userId
+  );
+  if (!result) {
+    throw new AppError("Credential not found", 404);
+  }
+  return result;
+};
+
 exports.update = async (userId, updatedInfo, id) => {
   let result = await credentialsRepository.updateCredential(
     userId,
     updatedInfo,
     id
   );
-  if (result.matchedCount === 0) {
+  if (!result) {
     throw new AppError("Document not found", 404);
   }
   return { id, userId, updatedInfo };

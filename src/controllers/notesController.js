@@ -1,22 +1,18 @@
-const credentialsService = require("../service/credentialsService");
-const credentialsRepository = require("../repository/credentialsRepo");
-
 const catchAsync = require("../utils/catchAsync");
-const AppError = require("../utils/appError");
+const notesService = require("../service/notesService");
 
-exports.createCredential = catchAsync(async (req, res) => {
-  const { title, website, username, favorite, credential } = req.body;
-
+exports.createNotes = catchAsync(async (req, res) => {
   const userId = res.locals.userId;
 
-  const result = await credentialsService.createCredential(
+  const { title, content, favorite } = req.body;
+
+  const result = await notesService.createNotes(
     title,
-    website,
-    username,
-    credential,
+    content,
     favorite,
     userId
   );
+
   return res.status(201).json({
     status: "success",
     data: {
@@ -24,14 +20,14 @@ exports.createCredential = catchAsync(async (req, res) => {
     },
   });
 });
+
 exports.getAll = catchAsync(async (req, res) => {
   const userId = res.locals.userId;
 
-  let result = await credentialsRepository.getAllCredentials(userId);
+  const result = await notesService.getAll(userId);
 
   return res.status(200).json({
     status: "success",
-
     data: {
       result,
     },
@@ -42,7 +38,7 @@ exports.getOne = catchAsync(async (req, res) => {
   const id = req.params.id;
   const userId = res.locals.userId;
 
-  let result = await credentialsService.getOne(id, userId);
+  const result = await notesService.getOne(id, userId);
 
   return res.status(200).json({
     status: "success",
@@ -52,25 +48,13 @@ exports.getOne = catchAsync(async (req, res) => {
   });
 });
 
-exports.getByWebsite = catchAsync(async (req, res) => {
-  const website = req.params.website;
-  const userId = res.locals.userId;
-
-  let result = await credentialsService.getByWebsite(website, userId);
-
-  return res.status(200).json({
-    status: "success",
-    data: {
-      result,
-    },
-  });
-});
-
 exports.update = catchAsync(async (req, res) => {
-  const updatedInfo = req.body;
   const id = req.params.id;
   const userId = res.locals.userId;
-  let result = await credentialsService.update(userId, updatedInfo, id);
+
+  const updatedInfo = req.body;
+
+  const result = await notesService.update(userId, updatedInfo, id);
 
   return res.status(200).json({
     status: "success",
@@ -83,20 +67,22 @@ exports.update = catchAsync(async (req, res) => {
 exports.deleteOne = catchAsync(async (req, res) => {
   const id = req.params.id;
   const userId = res.locals.userId;
-  await credentialsService.deleteOne(id, userId);
+
+  await notesService.deleteOne(id, userId);
 
   return res.status(200).json({
     status: "success",
-    message: "Credential deleted successfully",
+    message: "Note deleted successfully",
   });
 });
 
 exports.deleteAll = catchAsync(async (req, res) => {
   const userId = res.locals.userId;
-  await credentialsService.deleteAll(userId);
+
+  await notesService.deleteAll(userId);
 
   return res.status(200).json({
     status: "success",
-    message: "All credentials deleted successfully",
+    message: "All notes deleted successfully",
   });
 });
