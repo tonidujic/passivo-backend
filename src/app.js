@@ -20,7 +20,7 @@ const app = express();
 const PORT = config.PORT;
 app.use(
   cors({
-    origin: "http://localhost:9002",
+    origin: true,
     credentials: true,
   })
 );

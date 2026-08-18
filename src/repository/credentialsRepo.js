@@ -17,6 +17,17 @@ exports.findCredentialById = async (id, userId) => {
   return result;
 };
 
+exports.findCredentialByWebsite = async (website, userId) => {
+  const credentials = db.getCollection("credentials");
+
+  const result = await credentials.findOne({
+    website,
+    userId,
+  });
+
+  return result;
+};
+
 exports.getAllCredentials = async (userId) => {
   const credentials = db.getCollection("credentials");
   let result = await credentials.find({ userId }).toArray();
@@ -27,11 +38,7 @@ exports.getAllCredentials = async (userId) => {
 exports.updateCredential = async (userId, updatedInfo, id) => {
   const credentials = db.getCollection("credentials");
 
-  await credentials.updateOne(
-    { _id: id, userId },
-
-    { $set: updatedInfo }
-  );
+  await credentials.updateOne({ _id: id, userId }, { $set: updatedInfo });
 
   return await credentials.findOne({ _id: id, userId });
 };

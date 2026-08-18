@@ -16,3 +16,13 @@ exports.findUserById = async (userId) => {
   const users = db.getCollection("users");
   return await users.findOne({ _id: userId });
 };
+exports.changePassword = async (userId, updatedData) => {
+  const users = db.getCollection("users");
+
+  return await users.updateOne(
+    { _id: userId },
+    {
+      $set: updatedData,
+    }
+  );
+};

@@ -52,6 +52,20 @@ exports.getOne = catchAsync(async (req, res) => {
   });
 });
 
+exports.getByWebsite = catchAsync(async (req, res) => {
+  const website = req.params.website;
+  const userId = res.locals.userId;
+
+  let result = await credentialsService.getByWebsite(website, userId);
+
+  return res.status(200).json({
+    status: "success",
+    data: {
+      result,
+    },
+  });
+});
+
 exports.update = catchAsync(async (req, res) => {
   const updatedInfo = req.body;
   const id = req.params.id;

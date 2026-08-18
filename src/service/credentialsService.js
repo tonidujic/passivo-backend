@@ -34,6 +34,17 @@ exports.getOne = async (id, userId) => {
   return parseFromDB(result);
 };
 
+exports.getByWebsite = async (website, userId) => {
+  const result = await credentialsRepository.findCredentialByWebsite(
+    website,
+    userId
+  );
+  if (!result) {
+    throw new AppError("Credential not found", 404);
+  }
+  return result;
+};
+
 exports.update = async (userId, updatedInfo, id) => {
   let result = await credentialsRepository.updateCredential(
     userId,

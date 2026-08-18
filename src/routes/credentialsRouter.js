@@ -15,7 +15,13 @@ router.post(
   credentialsController.createCredential
 );
 router.get("/", authController.protect, credentialsController.getAll);
+router.get(
+  "/website/:website",
+  authController.protect,
+  credentialsController.getByWebsite
+);
 router.get("/:id", authController.protect, credentialsController.getOne);
+
 router.patch(
   "/:id",
   authController.protect,
