@@ -7,7 +7,7 @@ function getCookieOptions(remember = false) {
   const cookieOptions = {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
+    sameSite: "lax",
     path: "/",
   };
 
@@ -118,7 +118,7 @@ exports.logOut = (req, res) => {
   res.cookie("jwt", "", {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
+    sameSite: "lax",
     path: "/",
     expires: new Date(0),
   });

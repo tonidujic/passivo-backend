@@ -5,9 +5,9 @@ const util = require("util");
 
 exports.verifyToken = util.promisify(jwt.verify);
 
-exports.signToken = (id) => {
+exports.signToken = (id, remember = false) => {
   return jwt.sign({ id }, config.JWT_SECRET, {
-    expiresIn: config.JWT_EXPIRES_IN,
+    expiresIn: remember ? "30d" : config.JWT_EXPIRES_IN,
   });
 };
 
