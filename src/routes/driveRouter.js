@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const driveController = require("../controllers/driveController");
 const authController = require("../controllers/authController.js");
-const driveUtil = require("../utils/driveUtil");
 const {
   uploadFileValidator,
   renameFileValidator,

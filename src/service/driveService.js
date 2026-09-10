@@ -1,7 +1,6 @@
 const driveRepository = require("../repository/driveRepo");
 const AppError = require("../utils/appError");
-const { parseManyFromDB } = require("../utils/general");
-const driveStorageService = require("../service/driveStorageService");
+const { parseFromDB, parseManyFromDB } = require("../utils/general");
 const { v4: uuidv4 } = require("uuid");
 
 exports.createFile = async ({
@@ -17,8 +16,6 @@ exports.createFile = async ({
   if (!file) {
     throw new AppError("File not uploaded", 400);
   }
-
-  await driveStorageService.createFile(file);
 
   const savedFile = {
     id: uuidv4(),
@@ -42,16 +39,16 @@ exports.getAll = async (userId) => {
   return parseManyFromDB(result);
 };
 
-exports.getOne = async (fileKey) => {
-  const selectedFile = await driveStorageService.getOne(fileKey);
+exports.getOne = async (userId, fileId) => {
+  const selectedFile = await driveRepository.getOne(userId, fileId);
   if (!selectedFile) {
     throw new AppError("File not found", 404);
   }
-  return selectedFile;
+  return parseFromDB(selectedFile);
 };
 
-exports.update = async (fileKey, updatedInfo, userId) => {
-  const result = await driveRepository.update(fileKey, updatedInfo, userId);
+exports.update = async (fileId, updatedInfo, userId) => {
+  const result = await driveRepository.update(fileId, updatedInfo, userId);
 
   if (result.matchedCount === 0) {
     throw new AppError("File not found", 404);
@@ -59,13 +56,12 @@ exports.update = async (fileKey, updatedInfo, userId) => {
   return result;
 };
 
-exports.deleteOne = async (userId, fileKey) => {
-  const result = await driveRepository.deleteOne(userId, fileKey);
+exports.deleteOne = async (userId, fileId) => {
+  const result = await driveRepository.deleteOne(userId, fileId);
 
   if (result.deletedCount === 0) {
     throw new AppError("File not found", 404);
   }
-  await driveStorageService.deleteOne(fileKey);
 };
 
 exports.deleteAll = async (userId) => {
@@ -75,10 +71,5 @@ exports.deleteAll = async (userId) => {
     throw new AppError("No files found", 404);
   }
 
-  const objects = dbFiles.map((file) => ({
-    Key: file.key,
-  }));
-
-  await driveStorageService.deleteAll(objects);
   await driveRepository.deleteAll(userId);
 };

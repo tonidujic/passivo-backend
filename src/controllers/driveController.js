@@ -30,19 +30,23 @@ exports.getAll = catchAsync(async (req, res) => {
   });
 });
 exports.getOne = catchAsync(async (req, res) => {
-  const fileKey = req.params.key;
-  const result = await driveService.getOne(fileKey);
-  res.set("Content-Type", result.ContentType || "application/octet-stream");
-  result.Body.pipe(res);
+  const userId = res.locals.userId;
+  const fileId = req.params.key;
+  const result = await driveService.getOne(userId, fileId);
+
+  return res.status(200).json({
+    status: "success",
+    data: result,
+  });
 });
 
 exports.update = catchAsync(async (req, res) => {
   const userId = res.locals.userId;
   const updatedInfo = req.body;
 
-  const fileKey = req.params.key;
+  const fileId = req.params.key;
 
-  let result = await driveService.update(fileKey, updatedInfo, userId);
+  let result = await driveService.update(fileId, updatedInfo, userId);
 
   return res.status(200).send({
     status: "success",
@@ -51,8 +55,8 @@ exports.update = catchAsync(async (req, res) => {
 });
 exports.deleteOne = catchAsync(async (req, res) => {
   const userId = res.locals.userId;
-  const fileKey = req.params.key;
-  await driveService.deleteOne(userId, fileKey);
+  const fileId = req.params.key;
+  await driveService.deleteOne(userId, fileId);
 
   return res.status(200).send({
     status: "success",

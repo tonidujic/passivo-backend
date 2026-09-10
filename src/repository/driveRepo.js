@@ -13,15 +13,20 @@ exports.getAll = async (userId) => {
   return selectedFiles;
 };
 
-exports.update = async (fileKey, updatedInfo, userId) => {
+exports.getOne = async (userId, fileId) => {
   const files = db.getCollection("drive");
-
-  return await files.updateOne({ key: fileKey, userId }, { $set: updatedInfo });
+  return await files.findOne({ _id: fileId, userId });
 };
 
-exports.deleteOne = async (userId, fileKey) => {
+exports.update = async (fileId, updatedInfo, userId) => {
   const files = db.getCollection("drive");
-  return await files.deleteOne({ userId, key: fileKey });
+
+  return await files.updateOne({ _id: fileId, userId }, { $set: updatedInfo });
+};
+
+exports.deleteOne = async (userId, fileId) => {
+  const files = db.getCollection("drive");
+  return await files.deleteOne({ _id: fileId, userId });
 };
 
 exports.deleteAll = async (userId) => {
