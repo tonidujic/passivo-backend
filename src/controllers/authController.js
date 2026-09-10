@@ -65,6 +65,7 @@ exports.signUp = catchAsync(async (req, res) => {
     status: "success",
     data: {
       user: userWithoutAuthKey,
+      token: result.token,
       publicKey,
     },
   });
