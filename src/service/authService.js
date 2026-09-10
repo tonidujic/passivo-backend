@@ -13,6 +13,12 @@ exports.protect = async (token) => {
 
   const decoded = await authUtil.verifyToken(token, config.JWT_SECRET);
 
+  const user = await authRepository.findUserById(decoded.id);
+
+  if (!user) {
+    throw new AppError("Your session is no longer valid. Please log in again", 401);
+  }
+
   return decoded;
 };
 
